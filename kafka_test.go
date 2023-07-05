@@ -12,7 +12,7 @@ func TestKafkaProduce(t *testing.T) {
 	ops := []KafkaOption{
 		WithKafkaBrokers([]string{"172.18.156.112:29092"}),
 		WithKafkaTopic("test"),
-		WithKafkaUsedFor(Producer),
+		WithKafkaRule(Producer),
 	}
 	kb := NewKafkaBus(ops...)
 	err := kb.Send(context.Background(), []byte("test4"))
@@ -26,7 +26,7 @@ func TestKafkaConsumer(t *testing.T) {
 	ops := []KafkaOption{
 		WithKafkaBrokers([]string{"172.18.156.112:29092"}),
 		WithKafkaTopic("test"),
-		WithKafkaUsedFor(Consumer),
+		WithKafkaRule(Consumer),
 	}
 	kb := NewKafkaBus(ops...)
 	kb.ConsumerWithCallback(func(content any, err error) {
@@ -40,5 +40,7 @@ func TestKafkaConsumer(t *testing.T) {
 			t.Logf("message at topic/partition/offset %v/%v/%v: %s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
 		}
 	})
-	time.Sleep(15 * time.Second)
+	time.Sleep(5 * time.Second)
+	kb.Close()
+	time.Sleep(10 * time.Second)
 }

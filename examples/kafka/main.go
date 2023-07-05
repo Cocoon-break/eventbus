@@ -16,7 +16,7 @@ func start() {
 	ops := []eventbus.KafkaOption{
 		eventbus.WithKafkaBrokers([]string{"172.18.156.112:29092"}),
 		eventbus.WithKafkaTopic("test"),
-		eventbus.WithKafkaUsedFor(eventbus.Consumer),
+		eventbus.WithKafkaRule(eventbus.Consumer),
 	}
 	kb := eventbus.NewKafkaBus(ops...)
 	kb.ConsumerWithCallback(func(content any, err error) {

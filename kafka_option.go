@@ -3,19 +3,11 @@ package eventbus
 import "github.com/segmentio/kafka-go"
 
 type kafkaConfig struct {
-	Rule    KafkaRule // 作为使用的类型,default is ProducerAndConsumer
+	Rule    Rule // 作为使用的类型,default is ProducerAndConsumer
 	Brokers []string
 	Topic   string
 	GroupId string // 消费方的分组id，如果不设置客户端重启后offset从0开始
 }
-
-type KafkaRule int
-
-const (
-	ProducerAndConsumer KafkaRule = iota
-	Consumer
-	Producer
-)
 
 type KafkaOption func(*kafkaConfig)
 
@@ -31,7 +23,7 @@ func WithKafkaBrokers(brokers []string) KafkaOption {
 	}
 }
 
-func WithKafkaUsedFor(rule KafkaRule) KafkaOption {
+func WithKafkaRule(rule Rule) KafkaOption {
 	return func(c *kafkaConfig) {
 		c.Rule = rule
 	}

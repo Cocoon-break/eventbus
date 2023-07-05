@@ -9,9 +9,10 @@ import (
 )
 
 type kafkaBus struct {
-	writer *kafka.Writer
-	reader *kafka.Reader
-	cfg    *kafkaConfig
+	writer   *kafka.Writer
+	reader   *kafka.Reader
+	cfg      *kafkaConfig
+	stopChan chan struct{}
 }
 
 func NewKafkaBus(options ...KafkaOption) Driver {
@@ -21,7 +22,8 @@ func NewKafkaBus(options ...KafkaOption) Driver {
 	}
 
 	kb := &kafkaBus{
-		cfg: kc,
+		stopChan: make(chan struct{}),
+		cfg:      kc,
 	}
 	// 角色不是消费者就创建生产者
 	if kc.Rule != Consumer {
@@ -64,9 +66,14 @@ func (k *kafkaBus) Send(ctx context.Context, data []byte) error {
 	return k.SendWithTopic(ctx, k.cfg.Topic, data)
 }
 
-func (k *kafkaBus) ConsumerWithCallback(cb func(content any, err error)) {
+func (k *kafkaBus) ConsumerWithCallback(cb func(content any, err error)) error {
 	go func() {
 		for {
+			select { // todo: 不能解决协程泄露问题，因为读取数据函数是阻塞的
+			case <-k.stopChan:
+				return
+			default:
+			}
 			msg, err := k.reader.ReadMessage(context.Background())
 			if err != nil {
 				continue
@@ -74,6 +81,7 @@ func (k *kafkaBus) ConsumerWithCallback(cb func(content any, err error)) {
 			cb(msg, err)
 		}
 	}()
+	return nil
 }
 
 func (k *kafkaBus) Close() {
@@ -81,6 +89,7 @@ func (k *kafkaBus) Close() {
 		k.writer.Close()
 	}
 	if k.reader != nil {
+		k.stopChan <- struct{}{}
 		k.reader.Close()
 	}
 }

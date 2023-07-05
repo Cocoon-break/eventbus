@@ -8,5 +8,7 @@ type Driver interface {
 	// 使用全局配置的topic
 	Send(ctx context.Context, data []byte) error
 	// 消费回调
-	ConsumerWithCallback(cb func(content any, err error))
+	ConsumerWithCallback(cb func(content any, err error)) error
+	// 资源释放
+	Close()
 }

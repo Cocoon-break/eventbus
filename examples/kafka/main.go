@@ -1,8 +1,9 @@
 package main
 
 import (
-	"eventbus"
 	"fmt"
+
+	"github.com/Cocoon-break/eventbus"
 
 	"github.com/segmentio/kafka-go"
 )

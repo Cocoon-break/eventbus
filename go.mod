@@ -1,4 +1,4 @@
-module eventbus
+module github.com/Cocoon-break/eventbus
 
 go 1.20
 

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"eventbus"
 	"fmt"
 	"math/rand"
 	"strconv"
+
+	"github.com/Cocoon-break/eventbus"
 )
 
 func main() {

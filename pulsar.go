@@ -58,16 +58,18 @@ func (p *pulsarBus) ConsumerWithCallback(cb func(content any, err error)) error 
 		return err
 	}
 	go func(reader pulsar.Consumer) {
-		select {
-		case cm := <-channel:
-			msg := cm.Message
-			if cb != nil {
-				cb(msg.Payload(), err)
+		for {
+			select {
+			case cm := <-channel:
+				msg := cm.Message
+				if cb != nil {
+					cb(msg.Payload(), err)
+				}
+				_ = reader.Ack(msg)
+			case <-p.stopChan:
+				reader.Close()
+				return
 			}
-			_ = reader.Ack(msg)
-		case <-p.stopChan:
-			reader.Close()
-			return
 		}
 	}(reader)
 	return nil
